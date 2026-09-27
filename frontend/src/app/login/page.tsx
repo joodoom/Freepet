@@ -3,8 +3,10 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { authAPI } from '@/lib/api';
-import { LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
+import { LogIn, UserPlus, AlertCircle, Loader2, PawPrint, ShieldCheck, MessagesSquare, HeartHandshake } from 'lucide-react';
 import PasswordStrength from '@/components/PasswordStrength';
+import SpeciesIcon from '@/components/SpeciesIcon';
+import { PageShell, Field, TextInput, ActionButton, AlertBox, SegmentedTabs, SurfaceCard } from '@/components/ui';
 
 const PRIMITIVES = [
   '123456', 'password', 'qwerty', 'abc123', 'letmein', 'admin',
@@ -153,232 +155,252 @@ function LoginContent() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950 py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">{
-            isAdding ? 'Добавить аккаунт' : mode === 'register' ? 'Регистрация' : 'Вход в аккаунт'
-          }</h1>
-          <p className="text-slate-400 mt-2">
-            {!isAdding && mode === 'login' && (
-              <span>
-                Нет аккаунта?{' '}
-                <button onClick={() => { setMode('register'); setError(''); }} className="text-primary-400 hover:text-primary-300">
-                  Зарегистрируйтесь
-                </button>
-              </span>
-            )}
-            {!isAdding && mode === 'register' && (
-              <span>
-                Уже есть аккаунт?{' '}
-                <button onClick={() => { setMode('login'); setError(''); }} className="text-primary-400 hover:text-primary-300">
-                  Войдите
-                </button>
-              </span>
-            )}
-            {isAdding && (
-              <span>Войдите в другой аккаунт для добавления</span>
-            )}
-          </p>
-        </div>
+  const assurances = [
+    { icon: ShieldCheck, title: 'Безопасная передача', text: 'Анкеты проходят модерацию.' },
+    { icon: MessagesSquare, title: 'Прямой контакт', text: 'Общайтесь с владельцем в чате.' },
+    { icon: HeartHandshake, title: 'Забота прежде всего', text: 'Помогаем найти надёжный дом.' },
+  ];
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+  return (
+    <PageShell>
+      <div className="mx-auto grid max-w-6xl items-stretch gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-14">
+        <SurfaceCard className="relative hidden overflow-hidden p-8 lg:block">
+          <div className="pointer-events-none absolute -bottom-16 -right-16 text-primary-300 opacity-15" aria-hidden="true">
+            <SpeciesIcon iconKey="unknown" className="h-48 w-48" />
+          </div>
+          <span className="eyebrow">Вход и регистрация</span>
+          <h1 className="display-title mt-3 text-4xl">
+            {isAdding ? 'Добавить аккаунт' : mode === 'register' ? 'Создайте тёплый профиль' : 'С возвращением в приют'}
+          </h1>
+          <p className="lede mt-3 max-w-md">
+            Войдите, чтобы бронировать питомцев, переписываться с владельцами и вести историю ответственных передач.
+          </p>
+          <div className="mt-7 space-y-3">
+            {assurances.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="surface-soft flex items-start gap-3 p-4">
+                <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-primary-500/15 text-primary-300">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block font-bold text-white">{title}</span>
+                  <span className="block text-sm text-slate-400">{text}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-7 inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <PawPrint className="h-6 w-6 text-primary-300" aria-hidden="true" />
+            <span className="text-sm text-slate-300">ФРИПЕТ соединяет животных и заботливых людей.</span>
+          </div>
+        </SurfaceCard>
+
+        <SurfaceCard className="p-6 sm:p-8">
+          <div className="mb-6 text-center lg:hidden">
+            <h1 className="display-title text-3xl">
+              {isAdding ? 'Добавить аккаунт' : mode === 'register' ? 'Регистрация' : 'Вход в аккаунт'}
+            </h1>
+            <p className="lede mt-2 text-sm">
+              {!isAdding && mode === 'login' && 'Войдите, чтобы продолжить заботу о питомцах.'}
+              {!isAdding && mode === 'register' && 'Создайте профиль за одну минуту.'}
+              {isAdding && 'Войдите в другой аккаунт для добавления.'}
+            </p>
+          </div>
+
+          <div className="hidden lg:block">
+            <h2 className="display-title text-2xl">
+              {isAdding ? 'Добавить аккаунт' : mode === 'register' ? 'Регистрация' : 'Вход в аккаунт'}
+            </h2>
+            <p className="lede mt-2 text-sm">
+              {!isAdding && mode === 'login' && (
+                <span>
+                  Нет аккаунта?{' '}
+                  <button onClick={() => { setMode('register'); setError(''); }} className="font-bold text-primary-300 hover:text-primary-200">
+                    Зарегистрируйтесь
+                  </button>
+                </span>
+              )}
+              {!isAdding && mode === 'register' && (
+                <span>
+                  Уже есть аккаунт?{' '}
+                  <button onClick={() => { setMode('login'); setError(''); }} className="font-bold text-primary-300 hover:text-primary-200">
+                    Войдите
+                  </button>
+                </span>
+              )}
+              {isAdding && <span>Войдите в другой аккаунт для добавления</span>}
+            </p>
+          </div>
+
+          <div className="mt-6 lg:hidden">
+            <p className="lede text-center text-sm">
+              {!isAdding && mode === 'login' && (
+                <span>
+                  Нет аккаунта?{' '}
+                  <button onClick={() => { setMode('register'); setError(''); }} className="font-bold text-primary-300 hover:text-primary-200">
+                    Зарегистрируйтесь
+                  </button>
+                </span>
+              )}
+              {!isAdding && mode === 'register' && (
+                <span>
+                  Уже есть аккаунт?{' '}
+                  <button onClick={() => { setMode('login'); setError(''); }} className="font-bold text-primary-300 hover:text-primary-200">
+                    Войдите
+                  </button>
+                </span>
+              )}
+            </p>
+          </div>
+
           {!isAdding && (
-            <div className="flex mb-6 bg-white/5 rounded-lg p-1">
-              <button
-                onClick={() => { setMode('login'); setError(''); }}
-                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-                  mode === 'login'
-                    ? 'bg-white/10 text-white'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Вход
-              </button>
-              <button
-                onClick={() => { setMode('register'); setError(''); }}
-                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${
-                  mode === 'register'
-                    ? 'bg-white/10 text-white'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                Регистрация
-              </button>
+            <div className="mt-6">
+              <SegmentedTabs<'login' | 'register'>
+                value={mode}
+                onChange={(next) => { setMode(next); setError(''); }}
+                options={[
+                  { value: 'login', label: 'Вход', icon: <LogIn className="h-4 w-4" /> },
+                  { value: 'register', label: 'Регистрация', icon: <UserPlus className="h-4 w-4" /> },
+                ]}
+              />
             </div>
           )}
 
           {error && (
-            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center space-x-2 text-red-400">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <span>{error}</span>
+            <div className="mt-5">
+              <AlertBox tone="danger">
+                <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                <span>{error}</span>
+              </AlertBox>
             </div>
           )}
 
           {mode === 'register' && !isAdding ? (
-            <form onSubmit={handleRegister} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Имя пользователя *
-                </label>
-                <input
+            <form onSubmit={handleRegister} className="mt-6 space-y-5">
+              <Field label="Имя пользователя *">
+                <TextInput
                   type="text"
                   name="username"
                   value={regForm.username}
                   onChange={handleRegChange}
-                  className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
                   placeholder="Минимум 3 символа"
                   required
                   minLength={3}
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email *
-                </label>
-                <input
+              <Field label="Email *">
+                <TextInput
                   type="email"
                   name="email"
                   value={regForm.email}
                   onChange={handleRegChange}
-                  className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
                   placeholder="your@email.com"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Пароль *
-                </label>
-                <input
+              <Field label="Пароль *">
+                <TextInput
                   type="password"
                   name="password"
                   value={regForm.password}
                   onChange={handleRegChange}
-                  className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
                   placeholder="Минимум 6 символов"
                   required
                 />
                 <PasswordStrength password={regForm.password} />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Подтвердите пароль *
-                </label>
-                <input
+              <Field label="Подтвердите пароль *">
+                <TextInput
                   type="password"
                   name="confirmPassword"
                   value={regForm.confirmPassword}
                   onChange={handleRegChange}
-                  className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
                   placeholder="Повторите пароль"
                   required
                 />
                 {regForm.confirmPassword && regForm.password !== regForm.confirmPassword && (
-                  <p className="text-red-400 text-xs mt-1">Пароли не совпадают</p>
+                  <p className="mt-1 text-xs text-red-300">Пароли не совпадают</p>
                 )}
                 {regForm.confirmPassword && regForm.password === regForm.confirmPassword && (
-                  <p className="text-green-400 text-xs mt-1">Пароли совпадают</p>
+                  <p className="mt-1 text-xs text-green-300">Пароли совпадают</p>
                 )}
-              </div>
+              </Field>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full relative group rounded-lg"
-              >
-                <div className="absolute -inset-1.5 bg-green-400 rounded-xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-                <div className="absolute -inset-1 bg-green-500 rounded-xl opacity-0 group-hover:opacity-40 blur-md transition-all duration-500" />
-                <div className="relative bg-green-600 group-hover:bg-green-500 text-white py-3 rounded-lg transition-colors hover:shadow-neon-emerald disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>Регистрация...</span>
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="h-5 w-5" />
-                      <span>Зарегистрироваться</span>
-                    </>
-                  )}
-                </div>
-              </button>
+              <ActionButton type="submit" variant="leaf" disabled={loading} className="w-full py-3">
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Регистрация...</span>
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-5 w-5" />
+                    <span>Зарегистрироваться</span>
+                  </>
+                )}
+              </ActionButton>
             </form>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Имя пользователя</label>
-                <input
+            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+              <Field label="Имя пользователя">
+                <TextInput
                   type="text"
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
                   placeholder="Ваш логин"
                   required
                 />
-              </div>
+              </Field>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Пароль</label>
-                <input
+              <Field label="Пароль">
+                <TextInput
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
                   placeholder="Ваш пароль"
                   required
                 />
-              </div>
+              </Field>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full relative group rounded-lg"
-              >
-                <div className="absolute -inset-1.5 bg-green-400 rounded-xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-                <div className="absolute -inset-1 bg-green-500 rounded-xl opacity-0 group-hover:opacity-40 blur-md transition-all duration-500" />
-                <div className="relative bg-green-600 group-hover:bg-green-500 text-white py-3 rounded-lg transition-colors hover:shadow-neon-emerald disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
-                  {loading ? (
-                    <><Loader2 className="h-5 w-5 animate-spin" /><span>Вход...</span></>
-                  ) : (
-                    <><LogIn className="h-5 w-5" /><span>{isAdding ? 'Добавить аккаунт' : 'Войти'}</span></>
-                  )}
-                </div>
-              </button>
+              <ActionButton type="submit" variant="primary" disabled={loading} className="w-full py-3">
+                {loading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Вход...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="h-5 w-5" />
+                    <span>{isAdding ? 'Добавить аккаунт' : 'Войти'}</span>
+                  </>
+                )}
+              </ActionButton>
             </form>
           )}
 
-          <div className="mt-6">
+          <div className="mt-7">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-transparent text-slate-500 text-xs uppercase tracking-wider">или войдите через</span>
+                <span className="surface-soft px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">или войдите через</span>
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-5">
               <button
                 onClick={handleMailruLogin}
-                className="w-full relative group rounded-xl"
+                className="btn w-full bg-[#005ff9] py-3 text-white shadow-[0_16px_36px_rgba(0,95,249,0.32)] transition-all hover:bg-[#0050d8]"
               >
-                <div className="absolute -inset-1.5 bg-blue-400 rounded-2xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-                <div className="absolute -inset-1 bg-blue-500 rounded-2xl opacity-0 group-hover:opacity-40 blur-md transition-all duration-500" />
-                <div className="relative bg-blue-600 rounded-xl group-hover:bg-blue-500 transition-all duration-300">
-                  <div className="flex items-center justify-center space-x-3 px-4 py-3.5">
-                    <svg className="w-8 h-8 flex-shrink-0" viewBox="0 0 48 48" fill="none">
-                      <text x="8" y="34" fontFamily="Arial" fontWeight="bold" fontSize="32" fill="#FBBF24">@</text>
-                    </svg>
-                    <span className="text-white font-bold text-base tracking-wide">Mail.ru</span>
-                  </div>
-                </div>
+                <svg className="h-7 w-7 flex-shrink-0" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                  <text x="8" y="34" fontFamily="Arial" fontWeight="bold" fontSize="32" fill="#FBBF24">@</text>
+                </svg>
+                <span className="font-bold tracking-wide">Mail.ru</span>
               </button>
               {mailruDemo && (
                 <p className="mt-2 text-center text-xs text-slate-500">
@@ -387,8 +409,8 @@ function LoginContent() {
               )}
             </div>
           </div>
-        </div>
+        </SurfaceCard>
       </div>
-    </div>
+    </PageShell>
   );
 }

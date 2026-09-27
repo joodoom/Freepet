@@ -40,35 +40,37 @@ function MapContent({ city }: MapContentProps) {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-16 text-sm text-gray-500">
-        <MapPin className="h-4 w-4 mr-2" />
-        Не удалось определить расположение: {city}
+      <div className="alert alert-warning">
+        <MapPin className="h-4 w-4 flex-shrink-0" />
+        <span className="text-sm">Не удалось определить расположение: {city}</span>
       </div>
     );
   }
 
   if (!coords) {
     return (
-      <div className="flex items-center justify-center h-16 text-sm text-gray-500">
-        <MapPin className="h-4 w-4 mr-2" />
+      <div className="surface-soft flex h-24 items-center justify-center text-sm text-slate-400">
+        <MapPin className="mr-2 h-4 w-4 text-primary-300" />
         Определяем расположение...
       </div>
     );
   }
 
   return (
-    <Map
-      defaultState={{ center: coords, zoom: 13 }}
-      style={{ width: '100%', height: '340px', borderRadius: '0.75rem' }}
-    >
-      <Placemark
-        geometry={coords}
-        properties={{
-          hintContent: city,
-          balloonContent: city,
-        }}
-      />
-    </Map>
+    <div className="overflow-hidden rounded-2xl border border-white/10">
+      <Map
+        defaultState={{ center: coords, zoom: 13 }}
+        style={{ width: '100%', height: '340px', borderRadius: '1rem' }}
+      >
+        <Placemark
+          geometry={coords}
+          properties={{
+            hintContent: city,
+            balloonContent: city,
+          }}
+        />
+      </Map>
+    </div>
   );
 }
 

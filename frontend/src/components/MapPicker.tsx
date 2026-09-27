@@ -94,8 +94,8 @@ function MapInteractive({
 
   if (!ymaps) {
     return (
-      <div className="flex items-center justify-center h-40 bg-white/5 border border-white/10 rounded-xl">
-        <Loader2 className="h-6 w-6 text-primary-400 animate-spin" />
+      <div className="flex h-40 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+        <Loader2 className="h-6 w-6 animate-spin text-primary-300" />
       </div>
     );
   }
@@ -103,37 +103,39 @@ function MapInteractive({
   return (
     <div>
       {detecting && (
-        <div className="mb-3 flex items-center text-sm text-primary-300 bg-primary-500/10 border border-primary-500/20 rounded-lg px-3 py-2">
-          <Crosshair className="h-4 w-4 mr-2 animate-pulse" />
+        <div className="alert alert-warning mb-3 px-3 py-2 text-sm">
+          <Crosshair className="h-4 w-4 animate-pulse" />
           Определяем ваше местоположение...
         </div>
       )}
 
-      <Map
-        {...({
-          state: { center: coords },
-          onClick: handleMapClick,
-          style: { width: '100%', height: '320px', borderRadius: '0.75rem' },
-        } as any)}
-      >
-        {chosen && (
-          <Placemark
-            {...({
-              geometry: chosen,
-              options: { draggable: true },
-              onDragEnd: handleDragEnd,
-              properties: { hintContent: 'Ваша точка' },
-            } as any)}
-          />
-        )}
-      </Map>
+      <div className="overflow-hidden rounded-2xl border border-white/10">
+        <Map
+          {...({
+            state: { center: coords },
+            onClick: handleMapClick,
+            style: { width: '100%', height: '320px', borderRadius: '1rem' },
+          } as any)}
+        >
+          {chosen && (
+            <Placemark
+              {...({
+                geometry: chosen,
+                options: { draggable: true },
+                onDragEnd: handleDragEnd,
+                properties: { hintContent: 'Ваша точка' },
+              } as any)}
+            />
+          )}
+        </Map>
+      </div>
 
       <div className="mt-3 flex flex-col sm:flex-row items-center justify-between gap-2">
         <button
           type="button"
           onClick={detectLocation}
           disabled={!!detecting}
-          className="flex items-center text-sm text-primary-400 hover:text-primary-300 disabled:opacity-50"
+          className="flex min-h-[44px] items-center text-sm font-semibold text-primary-300 hover:text-primary-200 disabled:opacity-50"
         >
           <Crosshair className="h-4 w-4 mr-1" />
           {detecting ? 'Определяем...' : 'Определить автоматически'}
@@ -142,7 +144,7 @@ function MapInteractive({
           type="button"
           onClick={confirm}
           disabled={!chosen || resolving}
-          className="flex items-center px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-500 hover:shadow-neon-violet transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-primary px-5 py-2 text-sm"
         >
           {resolving ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -153,7 +155,7 @@ function MapInteractive({
         </button>
       </div>
       {resolveError && (
-        <p className="mt-2 text-sm text-red-400">{resolveError}</p>
+        <p className="mt-2 text-sm text-red-300">{resolveError}</p>
       )}
     </div>
   );

@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { petsAPI, User } from '@/lib/api';
 import { BREED_OPTIONS } from '@/lib/breeds';
+import { suggestCities } from '@/lib/cities';
 import LocationModal from '@/components/LocationModal';
-import { Upload, X, AlertCircle, CheckCircle, Loader2, AlertTriangle, MapPin } from 'lucide-react';
+import { Upload, X, AlertCircle, CheckCircle, Loader2, AlertTriangle, MapPin, Camera, ClipboardList, HeartHandshake } from 'lucide-react';
+import { PageShell, Field, TextInput, TextArea, SelectField, ActionButton, AlertBox, SurfaceCard } from '@/components/ui';
 
 export default function AddPetPage() {
   const router = useRouter();
@@ -29,6 +31,11 @@ export default function AddPetPage() {
   const [customBreed, setCustomBreed] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [locationOpen, setLocationOpen] = useState(false);
+  const [cityOpen, setCityOpen] = useState(false);
+  const [cityActive, setCityActive] = useState(0);
+
+  const citySuggestions = suggestCities(formData.city);
+  const showCitySuggestions = cityOpen && formData.city.trim().length > 0 && citySuggestions.length > 0;
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -49,6 +56,32 @@ export default function AddPetPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleInputChange(e);
+    setCityActive(0);
+    setCityOpen(true);
+  };
+
+  const handleCitySelect = (city: string) => {
+    setFormData((prev) => ({ ...prev, city }));
+    setCityOpen(false);
+  };
+
+  const handleCityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown' && showCitySuggestions) {
+      e.preventDefault();
+      setCityActive((prev) => (prev + 1) % citySuggestions.length);
+    } else if (e.key === 'ArrowUp' && showCitySuggestions) {
+      e.preventDefault();
+      setCityActive((prev) => (prev - 1 + citySuggestions.length) % citySuggestions.length);
+    } else if (e.key === 'Enter' && showCitySuggestions) {
+      e.preventDefault();
+      handleCitySelect(citySuggestions[Math.min(cityActive, citySuggestions.length - 1)]);
+    } else if (e.key === 'Escape') {
+      setCityOpen(false);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,262 +174,307 @@ export default function AddPetPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950 py-8">
-      <div className="max-w-2xl mx-auto px-4">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-          <h1 className="text-2xl font-bold text-white mb-6">
-            Добавить питомца
-          </h1>
+    <PageShell>
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="mb-8 max-w-3xl">
+          <span className="eyebrow">Новая анкета</span>
+          <h1 className="display-title mt-3 text-3xl sm:text-4xl lg:text-[2.9rem]">Добавить питомца</h1>
+          <p className="lede mt-3 max-w-2xl">
+            Расскажите честную историю животного: чем подробнее анкета, тем быстрее находится заботливый дом.
+          </p>
+        </div>
 
-          {error && (
-            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center space-x-2 text-red-400">
+        {error && (
+          <div className="mb-5">
+            <AlertBox tone="danger">
               <AlertCircle className="h-5 w-5 flex-shrink-0" />
               <span>{error}</span>
-            </div>
-          )}
+            </AlertBox>
+          </div>
+        )}
 
-          {success && (
-            <div className="mb-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center space-x-2 text-green-400">
+        {success && (
+          <div className="mb-5">
+            <AlertBox tone="success">
               <CheckCircle className="h-5 w-5 flex-shrink-0" />
               <span>{success}</span>
-            </div>
-          )}
+            </AlertBox>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Изображение питомца
-              </label>
-              <div className="flex items-center justify-center w-full">
-                {imagePreview ? (
-                  <div className="relative">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-52 sm:h-64 object-cover rounded-lg border border-white/10"
-                    />
+        <form onSubmit={handleSubmit}>
+          <div className="grid items-start gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <SurfaceCard className="p-6 sm:p-7">
+              <div className="flex items-center gap-3">
+                <span className="brand-mark" aria-hidden="true">
+                  <Camera className="h-6 w-6" />
+                </span>
+                <div>
+                  <h2 className="display-title text-xl">Фотография и место</h2>
+                  <p className="lede text-sm">Хорошее фото увеличивает доверие.</p>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <span className="field-label">Изображение питомца</span>
+                <div className="flex items-center justify-center w-full">
+                  {imagePreview ? (
+                    <div className="relative w-full">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-56 w-full rounded-2xl border border-white/10 object-cover sm:h-72"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-colors hover:bg-red-400"
+                        aria-label="Удалить изображение"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="surface-soft flex h-56 w-full cursor-pointer flex-col items-center justify-center border-2 border-dashed px-6 text-center transition-all duration-300 hover:border-primary-400/60 sm:h-72">
+                      <Upload className="mb-2 h-12 w-12 text-slate-500" />
+                      <p className="text-sm font-semibold text-slate-300">
+                        Нажмите для загрузки изображения
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        JPG, PNG, GIF, WebP (макс. 5 МБ)
+                      </p>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <Field label="Город / местоположение">
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <div className="relative flex-1">
+                      <TextInput
+                        type="text"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleCityInputChange}
+                        onFocus={() => { setCityActive(0); setCityOpen(true); }}
+                        onBlur={() => window.setTimeout(() => setCityOpen(false), 120)}
+                        onKeyDown={handleCityKeyDown}
+                        role="combobox"
+                        aria-expanded={showCitySuggestions}
+                        aria-autocomplete="list"
+                        aria-activedescendant={showCitySuggestions ? `city-option-${cityActive}` : undefined}
+                        autoComplete="off"
+                        className="flex-1"
+                        placeholder="Начните вводить: Мо…"
+                      />
+                      {showCitySuggestions && (
+                        <ul
+                          role="listbox"
+                          className="absolute inset-x-0 top-full z-30 mt-1 max-h-56 overflow-y-auto rounded-2xl border border-white/10 bg-[#2a1a0d] p-1 shadow-2xl"
+                        >
+                          {citySuggestions.map((city, index) => (
+                            <li key={city} role="option" id={`city-option-${index}`} aria-selected={index === cityActive}>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => handleCitySelect(city)}
+                                onMouseEnter={() => setCityActive(index)}
+                                className={`flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
+                                  index === cityActive
+                                    ? 'bg-primary-500/20 text-white'
+                                    : 'text-slate-300 hover:bg-white/5'
+                                }`}
+                              >
+                                <MapPin className="h-4 w-4 flex-shrink-0 text-primary-300" />
+                                <span className="truncate">{city}</span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                     <button
                       type="button"
-                      onClick={removeImage}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                      onClick={() => setLocationOpen(true)}
+                      className="btn btn-primary whitespace-nowrap px-5 py-2.5 text-sm"
                     >
-                      <X className="h-4 w-4" />
+                      <MapPin className="h-4 w-4" />
+                      Определить
                     </button>
                   </div>
-                ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-52 sm:h-64 border-2 border-white/20 border-dashed rounded-lg cursor-pointer hover:border-primary-400/50 hover:bg-white/5 transition-all duration-300">
-                    <Upload className="h-12 w-12 text-slate-500 mb-2" />
-                    <p className="text-sm text-slate-400">
-                      Нажмите для загрузки изображения
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      JPG, PNG, GIF, WebP (макс. 5 МБ)
-                    </p>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                    />
-                  </label>
-                )}
+                </Field>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Имя питомца *
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                placeholder="Например: Барсик"
-                required
-              />
-            </div>
+              <div className="surface-soft mt-6 flex items-start gap-3 p-4">
+                <HeartHandshake className="h-6 w-6 flex-shrink-0 text-primary-300" aria-hidden="true" />
+                <p className="text-sm text-slate-300">
+                  Укажите город честно: так анкета попадёт к людям рядом и передача пройдёт спокойнее.
+                </p>
+              </div>
+            </SurfaceCard>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Вид животного *
-              </label>
-              <select
-                name="species"
-                value={formData.species}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-slate-900 border border-white/10 rounded-lg text-white focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                required
-              >
-                <option className="bg-slate-900 text-white" value="">Выберите вид</option>
-                <option className="bg-slate-900 text-white" value="Собака">Собака</option>
-                <option className="bg-slate-900 text-white" value="Кошка">Кошка</option>
-                <option className="bg-slate-900 text-white" value="Хомяк">Хомяк</option>
-                <option className="bg-slate-900 text-white" value="Попугай">Попугай</option>
-                <option className="bg-slate-900 text-white" value="Рыбка">Рыбка</option>
-                <option className="bg-slate-900 text-white" value="Черепаха">Черепаха</option>
-                <option className="bg-slate-900 text-white" value="Кролик">Кролик</option>
-                <option className="bg-slate-900 text-white" value="Другое">Другое</option>
-                <option className="bg-slate-900 text-white" value="Неизвестно">Неизвестно</option>
-              </select>
+            <SurfaceCard className="p-6 sm:p-7">
+              <div className="flex items-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-500/15 text-green-300" aria-hidden="true">
+                  <ClipboardList className="h-6 w-6" />
+                </span>
+                <div>
+                  <h2 className="display-title text-xl">Характер и здоровье</h2>
+                  <p className="lede text-sm">Подробности помогают избежать недопонимания.</p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+                <Field label="Имя питомца *">
+                  <TextInput
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Например: Барсик"
+                    required
+                  />
+                </Field>
+
+                <Field label="Вид животного *">
+                  <SelectField
+                    name="species"
+                    value={formData.species}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Выберите вид</option>
+                    <option value="Собака">Собака</option>
+                    <option value="Кошка">Кошка</option>
+                    <option value="Хомяк">Хомяк</option>
+                    <option value="Попугай">Попугай</option>
+                    <option value="Рыбка">Рыбка</option>
+                    <option value="Черепаха">Черепаха</option>
+                    <option value="Кролик">Кролик</option>
+                    <option value="Другое">Другое</option>
+                    <option value="Неизвестно">Неизвестно</option>
+                  </SelectField>
+                </Field>
+              </div>
+
               {formData.species === 'Неизвестно' && (
-                <div className="mt-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start space-x-2">
-                  <AlertTriangle className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <p className="text-xs text-amber-400">
-                    Это неизвестная порода или животное. Вид, порода, здоровье и характер неизвестны или указаны приблизительно. Указывайте только приблизительную информацию.
-                  </p>
+                <div className="mt-5">
+                  <AlertBox tone="warning">
+                    <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                    <p className="text-sm">
+                      Это неизвестная порода или животное. Вид, порода, здоровье и характер неизвестны или указаны приблизительно. Указывайте только приблизительную информацию.
+                    </p>
+                  </AlertBox>
                 </div>
               )}
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Порода {formData.species === 'Неизвестно' && <span className="text-amber-400">(приблизительно)</span>}
-              </label>
-              {formData.species === 'Неизвестно' ? (
-                <input
-                  type="text"
-                  value="Неизвестна"
-                  disabled
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-slate-500"
-                />
-              ) : (
-                <>
-                  <select
-                    name="breed"
-                    value={formData.breed}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, breed: e.target.value }));
-                      setCustomBreed('');
-                    }}
-                    className="w-full px-4 py-2.5 min-h-11 bg-slate-900 border border-white/10 rounded-lg text-white focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                  >
-                    <option className="bg-slate-900 text-white" value="">Выберите породу</option>
-                    {formData.species === 'Другое' ? null : (BREED_OPTIONS[formData.species] || []).map((b) => (
-                      <option className="bg-slate-900 text-white" key={b} value={b}>{b}</option>
-                    ))}
-                    <option className="bg-slate-900 text-white" value="Другое">Другое</option>
-                  </select>
-                  {formData.breed === 'Другое' && (
-                    <input
+              <div className="mt-5">
+                <Field label={`Порода ${formData.species === 'Неизвестно' ? '(приблизительно)' : ''}`}>
+                  {formData.species === 'Неизвестно' ? (
+                    <TextInput
                       type="text"
-                      value={customBreed}
-                      onChange={(e) => setCustomBreed(e.target.value)}
-                      className="w-full mt-2 px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                      placeholder="Укажите породу вручную"
+                      value="Неизвестна"
+                      disabled
+                      className="text-slate-500"
                     />
+                  ) : (
+                    <>
+                      <SelectField
+                        name="breed"
+                        value={formData.breed}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, breed: e.target.value }));
+                          setCustomBreed('');
+                        }}
+                      >
+                        <option value="">Выберите породу</option>
+                        {formData.species === 'Другое' ? null : (BREED_OPTIONS[formData.species] || []).map((b) => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                        <option value="Другое">Другое</option>
+                      </SelectField>
+                      {formData.breed === 'Другое' && (
+                        <TextInput
+                          type="text"
+                          value={customBreed}
+                          onChange={(e) => setCustomBreed(e.target.value)}
+                          className="mt-2"
+                          placeholder="Укажите породу вручную"
+                        />
+                      )}
+                    </>
                   )}
-                </>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Характер {formData.species === 'Неизвестно' && <span className="text-amber-400">(приблизительно)</span>}
-              </label>
-<input
-              type="text"
-              name="character"
-              value={formData.character}
-              onChange={handleInputChange}
-              className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-              placeholder="Например: добрый, активный, спокойный (или неизвестно)"
-            />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Город / местоположение
-              </label>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className="flex-1 px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                  placeholder="Например: Алматы, Астана, Шымкент"
-                />
-                <button
-                  type="button"
-                  onClick={() => setLocationOpen(true)}
-                  className="flex items-center justify-center px-4 py-2.5 rounded-lg bg-primary-600 text-white border border-primary-500/50 hover:bg-primary-500 transition-colors hover:shadow-neon-violet whitespace-nowrap"
-                >
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Определить
-                </button>
+                </Field>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Возраст (лет)
-              </label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                placeholder="0"
-                min="0"
-                max="100"
-              />
-            </div>
+              <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                <Field label={`Характер ${formData.species === 'Неизвестно' ? '(приблизительно)' : ''}`}>
+                  <TextInput
+                    type="text"
+                    name="character"
+                    value={formData.character}
+                    onChange={handleInputChange}
+                    placeholder="Например: добрый, активный, спокойный (или неизвестно)"
+                  />
+                </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Описание *
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows={4}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                placeholder="Расскажите о характере, привычках, особенностях питомца (минимум 10 символов)"
-                required
-                minLength={10}
-              />
-            </div>
+                <Field label="Возраст (лет)">
+                  <TextInput
+                    type="number"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    placeholder="0"
+                    min="0"
+                    max="100"
+                  />
+                </Field>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Информация о прививках
-              </label>
-              <textarea
-                name="vaccination_info"
-                value={formData.vaccination_info}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                placeholder="Какие прививки сделаны, когда последняя вакцинация"
-              />
-            </div>
+              <div className="mt-5">
+                <Field label="Описание *">
+                  <TextArea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows={4}
+                    placeholder="Расскажите о характере, привычках, особенностях питомца (минимум 10 символов)"
+                    required
+                    minLength={10}
+                  />
+                </Field>
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Проблемы со здоровьем
-              </label>
-              <textarea
-                name="health_issues"
-                value={formData.health_issues}
-                onChange={handleInputChange}
-                rows={3}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300"
-                placeholder="Хронические заболевания, аллергии, особенности ухода"
-              />
-            </div>
+              <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                <Field label="Информация о прививках">
+                  <TextArea
+                    name="vaccination_info"
+                    value={formData.vaccination_info}
+                    onChange={handleInputChange}
+                    rows={3}
+                    placeholder="Какие прививки сделаны, когда последняя вакцинация"
+                  />
+                </Field>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full relative group rounded-lg"
-            >
-              <div className="absolute -inset-1.5 bg-primary-400 rounded-xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-              <div className="absolute -inset-1 bg-primary-500 rounded-xl opacity-0 group-hover:opacity-40 blur-md transition-all duration-500" />
-              <div className="relative bg-primary-600 group-hover:bg-primary-500 text-white py-3 rounded-lg transition-colors hover:shadow-neon-violet disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                <Field label="Проблемы со здоровьем">
+                  <TextArea
+                    name="health_issues"
+                    value={formData.health_issues}
+                    onChange={handleInputChange}
+                    rows={3}
+                    placeholder="Хронические заболевания, аллергии, особенности ухода"
+                  />
+                </Field>
+              </div>
+
+              <ActionButton type="submit" variant="primary" disabled={loading} className="mt-7 w-full py-3">
                 {loading ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -405,10 +483,10 @@ export default function AddPetPage() {
                 ) : (
                   <span>Добавить питомца</span>
                 )}
-              </div>
-            </button>
-          </form>
-        </div>
+              </ActionButton>
+            </SurfaceCard>
+          </div>
+        </form>
       </div>
       <LocationModal
         open={locationOpen}
@@ -421,6 +499,6 @@ export default function AddPetPage() {
           if (city) setFormData((prev) => ({ ...prev, city }));
         }}
       />
-    </div>
+    </PageShell>
   );
 }

@@ -2,13 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { Pet } from '@/lib/api';
-import { Loader2 } from 'lucide-react';
 
 const YandexMap = dynamic(() => import('@/components/YandexMap'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-72 rounded-xl bg-white/5 border border-white/10">
-      <Loader2 className="h-8 w-8 text-primary-400 animate-spin" />
+    <div className="surface-soft flex h-72 items-center justify-center rounded-2xl">
+      <span className="h-8 w-8 animate-spin rounded-full border-2 border-primary-300 border-t-transparent" aria-hidden="true" />
     </div>
   ),
 });

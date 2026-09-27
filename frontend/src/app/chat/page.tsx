@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { messagesAPI, Conversation, Message, User } from '@/lib/api';
-import { MessageSquare, Send, ArrowLeft, Loader2, UserCircle, Trash2, Flag, X, Shield } from 'lucide-react';
+import { MessageSquare, Send, ArrowLeft, Loader2, UserCircle, Trash2, Flag, X, Shield, PawPrint } from 'lucide-react';
+import { PageShell } from '@/components/ui';
 
 const REPORT_REASONS = [
   'Спам',
@@ -130,55 +131,64 @@ function ChatContent() {
   if (!user) return null;
 
   return (
-    <div className="bg-gradient-to-b from-slate-950 to-gray-900 h-[calc(100vh-64px)]">
-      <div className="max-w-4xl mx-auto h-full px-4 py-4">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl h-full overflow-hidden">
+    <PageShell>
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <span className="eyebrow">Сообщения</span>
+            <h1 className="display-title mt-2 text-3xl sm:text-4xl">Тёплые разговоры</h1>
+          </div>
+          <span className="badge badge-neutral">
+            <PawPrint className="h-3.5 w-3.5" /> {conversations.length} диалогов
+          </span>
+        </div>
+
+        <div className="surface-card h-[calc(100vh-240px)] min-h-[540px] overflow-hidden sm:h-[calc(100vh-220px)]">
           <div className="flex h-full">
-            {/* Список чатов */}
-              <div className={`${activeChat ? 'hidden md:flex' : 'flex'} flex-col w-full md:w-80 border-r border-white/10`}>
-              <div className="p-4 border-b border-white/10 bg-white/5 flex items-center">
-                <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5 text-green-400" />
+            <div className={`${activeChat ? 'hidden md:flex' : 'flex'} w-full flex-col border-r border-white/10 md:w-80`}>
+              <div className="flex items-center border-b border-white/10 bg-white/5 p-4">
+                <h2 className="flex items-center space-x-2 text-lg font-bold text-white">
+                  <MessageSquare className="h-5 w-5 text-green-300" />
                   <span>Сообщения</span>
                 </h2>
               </div>
               <div className="flex-1 overflow-y-auto">
                 {conversations.length === 0 ? (
                   <div className="p-6 text-center text-slate-400">
-                    <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                    <p className="text-sm">Пока нет сообщений</p>
-                    <p className="text-xs mt-1">Напишите владельцу питомца из бронирования</p>
+                    <MessageSquare className="mx-auto mb-3 h-12 w-12 opacity-20" />
+                    <p className="text-sm font-semibold">Пока нет сообщений</p>
+                    <p className="mt-1 text-xs">Напишите владельцу питомца из бронирования</p>
                   </div>
                 ) : (
                   conversations.map((conv) => (
                     <button
                       key={conv.user_id}
                       onClick={() => openChat(conv.user_id)}
-                      className={`w-full p-4 text-left hover:bg-white/5 transition-colors border-b border-white/5 ${activeChat === conv.user_id ? 'bg-primary-500/10 border-l-4 border-l-primary-500' : ''} ${conv.is_admin_chat ? 'border-l-4 border-l-green-500 bg-green-500/5' : ''}`}
+                      className={`w-full border-b border-white/5 p-4 text-left transition-colors hover:bg-white/5 ${activeChat === conv.user_id ? 'border-l-4 border-l-primary-400 bg-primary-500/10' : ''} ${conv.is_admin_chat ? 'border-l-4 border-l-green-500 bg-green-500/5' : ''}`}
                     >
                       <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${conv.is_admin_chat ? 'bg-green-500/20' : 'bg-primary-500/20'}`}>
+                        <div className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl ${conv.is_admin_chat ? 'bg-green-500/20' : 'bg-primary-500/20'}`}>
                           {conv.is_admin_chat ? (
-                            <Shield className="h-5 w-5 text-green-400" />
+                            <Shield className="h-5 w-5 text-green-300" />
                           ) : (
-                            <UserCircle className="h-6 w-6 text-primary-400" />
+                            <UserCircle className="h-6 w-6 text-primary-300" />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between">
-                            <p className={`font-medium text-sm truncate ${conv.is_admin_chat ? 'text-green-400' : 'text-white'}`}>
+                            <p className={`truncate text-sm font-bold ${conv.is_admin_chat ? 'text-green-300' : 'text-white'}`}>
                               {conv.is_admin_chat ? 'Поддержка' : conv.username}
                             </p>
                             {conv.unread_count > 0 && (
-                              <span className="bg-green-500 text-white text-xs rounded-full px-2 py-0.5 ml-2">
+                              <span className="ml-2 rounded-full bg-green-500 px-2 py-0.5 text-xs font-bold text-white">
                                 {conv.unread_count}
                               </span>
                             )}
                           </div>
                           {conv.pet_name && (
-                            <p className="text-xs text-green-400 mt-0.5">Питомец: {conv.pet_name}</p>
+                            <p className="mt-0.5 text-xs text-green-300">Питомец: {conv.pet_name}</p>
                           )}
-                          <p className="text-xs text-slate-400 truncate mt-0.5">
+                          <p className="mt-0.5 truncate text-xs text-slate-400">
                             {conv.is_admin_chat && !conv.last_message ? 'Напишите нам' : conv.last_message}
                           </p>
                         </div>
@@ -189,63 +199,63 @@ function ChatContent() {
               </div>
             </div>
 
-            {/* Окно чата */}
-            <div className={`${activeChat ? 'flex' : 'hidden md:flex'} flex-col flex-1`}>
+            <div className={`${activeChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
               {activeChat ? (
                 <>
-                  <div className="p-4 border-b border-white/10 bg-white/5 flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 border-b border-white/10 bg-white/5 p-4">
                     <button
                       onClick={() => setActiveChat(null)}
-                      className="md:hidden h-11 w-11 -ml-2 flex items-center justify-center rounded-lg text-slate-400 hover:text-white transition-colors"
+                      className="flex h-11 w-11 -ml-2 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white/10 hover:text-white md:hidden"
+                      aria-label="Назад к диалогам"
                     >
                       <ArrowLeft className="h-5 w-5" />
                     </button>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${conversations.find(c => c.user_id === activeChat)?.is_admin_chat ? 'bg-green-500/20' : 'bg-primary-500/20'}`}>
+                    <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl ${conversations.find(c => c.user_id === activeChat)?.is_admin_chat ? 'bg-green-500/20' : 'bg-primary-500/20'}`}>
                       {conversations.find(c => c.user_id === activeChat)?.is_admin_chat ? (
-                        <Shield className="h-5 w-5 text-green-400" />
+                        <Shield className="h-5 w-5 text-green-300" />
                       ) : (
-                        <UserCircle className="h-5 w-5 text-primary-400" />
+                        <UserCircle className="h-5 w-5 text-primary-300" />
                       )}
                     </div>
-                    <div>
-                      <p className={`font-medium text-sm ${conversations.find(c => c.user_id === activeChat)?.is_admin_chat ? 'text-green-400' : 'text-white'}`}>
+                    <div className="min-w-0">
+                      <p className={`truncate text-sm font-bold ${conversations.find(c => c.user_id === activeChat)?.is_admin_chat ? 'text-green-300' : 'text-white'}`}>
                         {conversations.find(c => c.user_id === activeChat)?.is_admin_chat
                           ? 'Поддержка'
                           : conversations.find(c => c.user_id === activeChat)?.username || 'Чат'}
                       </p>
                       {conversations.find(c => c.user_id === activeChat)?.pet_name && (
-                        <p className="text-xs text-green-400">
+                        <p className="truncate text-xs text-green-300">
                           {conversations.find(c => c.user_id === activeChat)?.pet_name}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  <div className="flex-1 space-y-3 overflow-y-auto p-4 sm:p-5">
                     {messages.map((msg) => (
                       <div
                         key={msg.id}
-                        className={`flex group ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                        className={`group flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div className={`max-w-[85%] sm:max-w-xs lg:max-w-md ${msg.sender_id === user.id ? 'items-end' : 'items-start'} flex flex-col`}>
+                        <div className={`flex max-w-[86%] flex-col sm:max-w-xs lg:max-w-md ${msg.sender_id === user.id ? 'items-end' : 'items-start'}`}>
                           <div
-                            className={`px-4 py-2 rounded-2xl ${
+                            className={`px-4 py-2.5 shadow-lg ${
                               msg.sender_id === user.id
-                                ? 'bg-primary-600/80 text-white rounded-br-md'
-                                : 'bg-white/10 text-white rounded-bl-md'
+                                ? 'rounded-3xl rounded-br-md bg-primary-600/90 text-white'
+                                : 'rounded-3xl rounded-bl-md border border-white/10 bg-white/10 text-white'
                             }`}
                           >
-                            <p className="text-sm">{msg.text}</p>
-                            <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-primary-200' : 'text-slate-400'}`}>
+                            <p className="text-sm leading-relaxed">{msg.text}</p>
+                            <p className={`mt-1 text-xs ${msg.sender_id === user.id ? 'text-primary-100' : 'text-slate-400'}`}>
                               {new Date(msg.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
 
-                          <div className={`mt-1 flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'} opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity`}>
+                          <div className={`mt-1 flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'} opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100`}>
                             {msg.sender_id === user.id ? (
                               <button
                                 onClick={() => setDeleteModal(msg.id)}
-                                className="flex items-center space-x-1 px-3 py-2 rounded-lg text-xs text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors"
+                                className="flex items-center space-x-1 rounded-full px-3 py-2 text-xs font-semibold text-red-300 transition-colors hover:bg-white/5 hover:text-red-200"
                               >
                                 <Trash2 className="h-4 w-4" />
                                 <span>Удалить</span>
@@ -253,7 +263,7 @@ function ChatContent() {
                             ) : (
                               <button
                                 onClick={() => setReportModal(msg.id)}
-                                className="flex items-center space-x-1 px-3 py-2 rounded-lg text-xs text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors"
+                                className="flex items-center space-x-1 rounded-full px-3 py-2 text-xs font-semibold text-slate-400 transition-colors hover:bg-white/5 hover:text-red-300"
                               >
                                 <Flag className="h-4 w-4" />
                                 <span>Пожаловаться</span>
@@ -266,19 +276,20 @@ function ChatContent() {
                     <div ref={messagesEndRef} />
                   </div>
 
-                  <form onSubmit={handleSend} className="p-4 border-t border-white/10 bg-white/5">
+                  <form onSubmit={handleSend} className="border-t border-white/10 bg-white/5 p-4">
                     <div className="flex items-center space-x-2">
                       <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-full focus:outline-none focus:border-primary-400 focus:shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all text-sm text-white placeholder-slate-500"
+                        className="field flex-1 !rounded-full !py-2.5 text-sm"
                         placeholder="Введите сообщение..."
                       />
                       <button
                         type="submit"
                         disabled={!newMessage.trim() || sending}
-                        className="w-11 h-11 bg-green-600 text-white rounded-full flex items-center justify-center hover:bg-green-500 transition-colors disabled:opacity-50"
+                        className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-white shadow-neon-emerald transition-all hover:bg-green-500 disabled:opacity-50"
+                        aria-label="Отправить сообщение"
                       >
                         {sending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -290,10 +301,11 @@ function ChatContent() {
                   </form>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-slate-400">
+                <div className="flex flex-1 items-center justify-center p-8 text-slate-400">
                   <div className="text-center">
-                    <MessageSquare className="h-16 w-16 mx-auto mb-4 opacity-20" />
-                    <p>Выберите чат или начните новый</p>
+                    <MessageSquare className="mx-auto mb-4 h-16 w-16 opacity-20" />
+                    <p className="font-semibold">Выберите чат или начните новый</p>
+                    <p className="mt-1 text-sm">Все договорённости остаются в одном месте.</p>
                   </div>
                 </div>
               )}
@@ -302,32 +314,32 @@ function ChatContent() {
         </div>
       </div>
 
-      {/* Модалка подтверждения удаления */}
       {deleteModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl w-full max-w-sm">
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h3 className="font-bold text-white">Удалить сообщение?</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="modal-panel w-full max-w-sm">
+            <div className="flex items-center justify-between border-b border-white/10 p-5">
+              <h3 className="display-title text-lg">Удалить сообщение?</h3>
               <button
                 onClick={() => setDeleteModal(null)}
-                className="h-11 w-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-white transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Отмена удаления"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-5">
               <p className="text-sm text-slate-300">Сообщение будет скрыто от вас и другого пользователя.</p>
             </div>
-            <div className="flex justify-end space-x-2 p-4 border-t border-white/10">
+            <div className="flex justify-end gap-2 border-t border-white/10 p-5">
               <button
                 onClick={() => setDeleteModal(null)}
-                className="px-4 py-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                className="btn btn-ghost px-4 py-2 text-sm"
               >
                 Отмена
               </button>
               <button
                 onClick={() => handleDelete(deleteModal)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition-colors"
+                className="btn bg-red-600 px-4 py-2 text-sm text-white transition-colors hover:bg-red-500"
               >
                 Удалить
               </button>
@@ -336,23 +348,23 @@ function ChatContent() {
         </div>
       )}
 
-      {/* Модалка жалобы */}
       {reportModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl w-full max-w-sm">
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h3 className="font-bold text-white">Пожаловаться</h3>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="modal-panel w-full max-w-sm">
+            <div className="flex items-center justify-between border-b border-white/10 p-5">
+              <h3 className="display-title text-lg">Пожаловаться</h3>
               <button
                 onClick={() => { setReportModal(null); setReportReason(''); setReportComment(''); }}
-                className="h-11 w-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-white transition-colors"
+                className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Закрыть жалобу"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-4 space-y-3">
-              <div className="space-y-2">
+            <div className="space-y-3 p-5">
+              <div className="space-y-1">
                 {REPORT_REASONS.map((r) => (
-                  <label key={r} className="flex items-center space-x-2 cursor-pointer py-2">
+                  <label key={r} className="flex cursor-pointer items-center space-x-2 rounded-xl px-2 py-2 transition-colors hover:bg-white/5">
                     <input
                       type="radio"
                       name="reason"
@@ -368,22 +380,22 @@ function ChatContent() {
               <textarea
                 value={reportComment}
                 onChange={(e) => setReportComment(e.target.value)}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-slate-500 resize-none focus:outline-none focus:border-primary-400 focus:shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all"
+                className="field resize-none text-sm"
                 rows={2}
                 placeholder="Комментарий (необязательно)"
               />
             </div>
-            <div className="flex justify-end space-x-2 p-4 border-t border-white/10">
+            <div className="flex justify-end gap-2 border-t border-white/10 p-5">
               <button
                 onClick={() => { setReportModal(null); setReportReason(''); setReportComment(''); }}
-                className="px-4 py-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors"
+                className="btn btn-ghost px-4 py-2 text-sm"
               >
                 Отмена
               </button>
               <button
                 onClick={handleReport}
                 disabled={!reportReason}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-sm transition-colors disabled:opacity-50"
+                className="btn bg-red-600 px-4 py-2 text-sm text-white transition-colors hover:bg-red-500 disabled:opacity-50"
               >
                 Отправить
               </button>
@@ -391,7 +403,7 @@ function ChatContent() {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
 
@@ -399,9 +411,11 @@ export default function ChatPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gradient-to-b from-slate-950 to-gray-900">
-          <Loader2 className="h-10 w-10 text-primary-400 animate-spin" />
-        </div>
+        <PageShell>
+          <div className="flex h-[calc(100vh-64px)] items-center justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary-300" />
+          </div>
+        </PageShell>
       }
     >
       <ChatContent />

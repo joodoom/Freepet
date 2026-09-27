@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { adminAPI, User as UserType, Pet, Complaint } from '@/lib/api';
 import {
   Users, PawPrint, Calendar, Clock, CheckCircle, XCircle,
-  Shield, Trash2, Loader2, AlertCircle, BarChart3, Flag, Ban
+  Shield, Trash2, Loader2, BarChart3, Flag, Ban
 } from 'lucide-react';
+import { PageShell, SurfaceCard, StatTile, ToneBadge, EmptyState } from '@/components/ui';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -134,46 +135,60 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950">
-        <Loader2 className="h-10 w-10 text-primary-400 animate-spin" />
-      </div>
+      <PageShell>
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <SurfaceCard className="flex items-center gap-3 px-7 py-5">
+            <Loader2 className="h-8 w-8 animate-spin text-primary-300" />
+            <span className="font-semibold text-white">Загружаем панель…</span>
+          </SurfaceCard>
+        </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950 min-h-screen py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center space-x-3 mb-8">
-          <Shield className="h-8 w-8 text-primary-400" />
-          <h1 className="text-3xl font-bold text-white">Админ панель</h1>
+    <PageShell>
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <span className="brand-mark" aria-hidden="true">
+            <Shield className="h-6 w-6" />
+          </span>
+          <div>
+            <p className="eyebrow">Управление платформой</p>
+            <h1 className="display-title mt-1 text-3xl sm:text-4xl">Админ панель</h1>
+          </div>
         </div>
 
-        <div className="flex gap-2 mb-8 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 pb-1">
+        <div className="surface-soft mb-8 flex gap-2 overflow-x-auto p-1.5">
           <button
             onClick={() => setActiveTab('stats')}
-            className={`flex-shrink-0 whitespace-nowrap px-4 py-2.5 rounded-lg font-medium ${activeTab === 'stats' ? 'bg-primary-600 text-white shadow-neon-violet' : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'}`}
+            aria-pressed={activeTab === 'stats'}
+            className={`flex min-h-[44px] flex-shrink-0 items-center whitespace-nowrap rounded-full px-5 font-bold transition-all ${activeTab === 'stats' ? 'bg-primary-600 text-white shadow-neon-violet' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
           >
-            <BarChart3 className="inline h-4 w-4 mr-1" /> Статистика
+            <BarChart3 className="mr-1.5 h-4 w-4" /> Статистика
           </button>
           <button
             onClick={() => setActiveTab('pets')}
-            className={`flex-shrink-0 whitespace-nowrap px-4 py-2.5 rounded-lg font-medium ${activeTab === 'pets' ? 'bg-primary-600 text-white shadow-neon-violet' : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'}`}
+            aria-pressed={activeTab === 'pets'}
+            className={`flex min-h-[44px] flex-shrink-0 items-center whitespace-nowrap rounded-full px-5 font-bold transition-all ${activeTab === 'pets' ? 'bg-primary-600 text-white shadow-neon-violet' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
           >
-            <PawPrint className="inline h-4 w-4 mr-1" /> Анкеты ({pets.length})
+            <PawPrint className="mr-1.5 h-4 w-4" /> Анкеты ({pets.length})
           </button>
           <button
             onClick={() => setActiveTab('users')}
-            className={`flex-shrink-0 whitespace-nowrap px-4 py-2.5 rounded-lg font-medium ${activeTab === 'users' ? 'bg-primary-600 text-white shadow-neon-violet' : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'}`}
+            aria-pressed={activeTab === 'users'}
+            className={`flex min-h-[44px] flex-shrink-0 items-center whitespace-nowrap rounded-full px-5 font-bold transition-all ${activeTab === 'users' ? 'bg-primary-600 text-white shadow-neon-violet' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
           >
-            <Users className="inline h-4 w-4 mr-1" /> Пользователи ({users.length})
+            <Users className="mr-1.5 h-4 w-4" /> Пользователи ({users.length})
           </button>
           <button
             onClick={() => setActiveTab('complaints')}
-            className={`flex-shrink-0 whitespace-nowrap px-4 py-2.5 rounded-lg font-medium relative ${activeTab === 'complaints' ? 'bg-red-600 text-white' : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10'}`}
+            aria-pressed={activeTab === 'complaints'}
+            className={`relative flex min-h-[44px] flex-shrink-0 items-center whitespace-nowrap rounded-full px-5 font-bold transition-all ${activeTab === 'complaints' ? 'bg-red-600 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white'}`}
           >
-            <Flag className="inline h-4 w-4 mr-1" /> Жалобы
+            <Flag className="mr-1.5 h-4 w-4" /> Жалобы
             {complaints.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+              <span className="absolute -right-1 -top-1 min-w-[20px] rounded-full bg-red-500 px-1.5 py-0.5 text-center text-xs font-bold text-white">
                 {complaints.length}
               </span>
             )}
@@ -181,198 +196,177 @@ export default function AdminPage() {
         </div>
 
         {activeTab === 'stats' && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <Users className="h-8 w-8 text-blue-400 mb-2" />
-              <p className="text-3xl font-bold text-white">{stats.users}</p>
-              <p className="text-slate-400">Пользователей</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <PawPrint className="h-8 w-8 text-green-400 mb-2" />
-              <p className="text-3xl font-bold text-white">{stats.pets}</p>
-              <p className="text-slate-400">Анкет</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <Calendar className="h-8 w-8 text-purple-400 mb-2" />
-              <p className="text-3xl font-bold text-white">{stats.bookings}</p>
-              <p className="text-slate-400">Бронирований</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-              <Clock className="h-8 w-8 text-yellow-400 mb-2" />
-              <p className="text-3xl font-bold text-white">{stats.pending_moderation}</p>
-              <p className="text-slate-400">На модерации</p>
-            </div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            <StatTile icon={<Users className="h-6 w-6" />} value={stats.users} label="Пользователей" />
+            <StatTile icon={<PawPrint className="h-6 w-6" />} value={stats.pets} label="Анкет" />
+            <StatTile icon={<Calendar className="h-6 w-6" />} value={stats.bookings} label="Бронирований" />
+            <StatTile icon={<Clock className="h-6 w-6" />} value={stats.pending_moderation} label="На модерации" />
           </div>
         )}
 
         {activeTab === 'pets' && (
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+          <SurfaceCard className="overflow-hidden">
             <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
-              <thead className="bg-white/5">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">ID</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Имя</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Вид</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Владелец</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Модерация</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Действия</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/10">
-                {pets.map((pet) => (
-                  <tr key={pet.id} className="hover:bg-white/5">
-                    <td className="px-4 py-3 text-sm text-slate-300">{pet.id}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-300">{pet.name}</td>
-                    <td className="px-4 py-3 text-sm text-slate-300">{pet.species}</td>
-                    <td className="px-4 py-3 text-sm text-slate-300">{pet.owner?.username || '—'}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        pet.status === 'available' ? 'bg-green-500/20 text-green-300' :
-                        pet.status === 'booked' ? 'bg-amber-500/20 text-amber-300' :
-                        'bg-white/10 text-slate-300'
-                      }`}>{pet.status}</span>
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        pet.moderation_status === 'approved' ? 'bg-green-500/20 text-green-300' :
-                        pet.moderation_status === 'pending' ? 'bg-amber-500/20 text-amber-300' :
-                        pet.moderation_status === 'transferred' || pet.moderation_status === 'rejected' || pet.moderation_status === 'blocked' ? 'bg-red-500/20 text-red-300' :
-                        'bg-white/10 text-slate-300'
-                      }`}>{pet.moderation_status}</span>
-                    </td>
-                    <td className="px-4 py-3 text-sm space-x-2">
-                      {pet.moderation_status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleApprove(pet.id)}
-                            disabled={actionLoading === pet.id}
-                            className="text-green-400 hover:text-green-300"
-                          >
-                            <CheckCircle className="h-4 w-4 inline" /> Одобрить
-                          </button>
-                          <button
-                            onClick={() => handleReject(pet.id)}
-                            disabled={actionLoading === pet.id}
-                            className="text-red-400 hover:text-red-300"
-                          >
-                            <XCircle className="h-4 w-4 inline" /> Отклонить
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => handleDeletePet(pet.id)}
-                        className="text-red-500 hover:text-red-400"
-                      >
-                        <Trash2 className="h-4 w-4 inline" />
-                      </button>
-                    </td>
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Имя</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Вид</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Владелец</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Статус</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Модерация</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Действия</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {pets.map((pet) => (
+                    <tr key={pet.id} className="transition-colors hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm text-slate-300">{pet.id}</td>
+                      <td className="px-4 py-3 text-sm font-bold text-slate-200">{pet.name}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{pet.species}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{pet.owner?.username || '—'}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <ToneBadge tone={pet.status === 'available' ? 'leaf' : pet.status === 'booked' ? 'amber' : 'neutral'}>
+                          {pet.status}
+                        </ToneBadge>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <ToneBadge tone={pet.moderation_status === 'approved' ? 'leaf' : pet.moderation_status === 'pending' ? 'amber' : 'rose'}>
+                          {pet.moderation_status}
+                        </ToneBadge>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="flex flex-wrap items-center gap-3">
+                          {pet.moderation_status === 'pending' && (
+                            <>
+                              <button
+                                onClick={() => handleApprove(pet.id)}
+                                disabled={actionLoading === pet.id}
+                                className="inline-flex items-center gap-1 font-semibold text-green-300 transition-colors hover:text-green-200 disabled:opacity-50"
+                              >
+                                <CheckCircle className="h-4 w-4" /> Одобрить
+                              </button>
+                              <button
+                                onClick={() => handleReject(pet.id)}
+                                disabled={actionLoading === pet.id}
+                                className="inline-flex items-center gap-1 font-semibold text-red-300 transition-colors hover:text-red-200 disabled:opacity-50"
+                              >
+                                <XCircle className="h-4 w-4" /> Отклонить
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => handleDeletePet(pet.id)}
+                            className="inline-flex items-center gap-1 font-semibold text-red-400 transition-colors hover:text-red-300"
+                            aria-label={`Удалить анкету ${pet.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </SurfaceCard>
         )}
 
         {activeTab === 'users' && (
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
+          <SurfaceCard className="overflow-hidden">
             <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px]">
-              <thead className="bg-white/5">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">ID</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Имя</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Email</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Верифицирован</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Статус</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">Действия</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/10">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-white/5">
-                    <td className="px-4 py-3 text-sm text-slate-300">{u.id}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-slate-300">{u.username}</td>
-                    <td className="px-4 py-3 text-sm text-slate-300">{u.email}</td>
-                    <td className="px-4 py-3 text-sm">
-                      {u.is_verified ? (
-                        <CheckCircle className="h-4 w-4 text-green-400 inline" />
-                      ) : (
-                        <XCircle className="h-4 w-4 text-red-400 inline" />
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        u.is_blocked ? 'bg-red-500/20 text-red-300' : 'bg-green-500/20 text-green-300'
-                      }`}>
-                        {u.is_blocked ? 'Заблокирован' : 'Активен'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      {!u.is_admin && (
-                        u.is_blocked ? (
-                          <button onClick={() => handleUnblock(u.id)} className="text-green-400 hover:text-green-300">
-                            Разблокировать
-                          </button>
-                        ) : (
-                          <button onClick={() => handleBlock(u.id)} className="text-red-400 hover:text-red-300">
-                            Заблокировать
-                          </button>
-                        )
-                      )}
-                    </td>
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Имя</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Email</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Верифицирован</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Статус</th>
+                    <th className="px-4 py-3 text-left text-sm font-bold text-slate-400">Действия</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {users.map((u) => (
+                    <tr key={u.id} className="transition-colors hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm text-slate-300">{u.id}</td>
+                      <td className="px-4 py-3 text-sm font-bold text-slate-200">{u.username}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{u.email}</td>
+                      <td className="px-4 py-3 text-sm">
+                        {u.is_verified ? (
+                          <CheckCircle className="h-4 w-4 text-green-300" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-300" />
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <ToneBadge tone={u.is_blocked ? 'rose' : 'leaf'}>
+                          {u.is_blocked ? 'Заблокирован' : 'Активен'}
+                        </ToneBadge>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {!u.is_admin && (
+                          u.is_blocked ? (
+                            <button onClick={() => handleUnblock(u.id)} className="font-semibold text-green-300 transition-colors hover:text-green-200">
+                              Разблокировать
+                            </button>
+                          ) : (
+                            <button onClick={() => handleBlock(u.id)} className="font-semibold text-red-300 transition-colors hover:text-red-200">
+                              Заблокировать
+                            </button>
+                          )
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
+          </SurfaceCard>
         )}
 
         {activeTab === 'complaints' && (
           <div className="space-y-4">
             {complaints.length === 0 ? (
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center text-slate-400">
-                <Flag className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p>Нет активных жалоб</p>
-              </div>
+              <EmptyState
+                icon={<Flag className="h-8 w-8" aria-hidden="true" />}
+                title="Нет активных жалоб"
+                description="Все обращения пользователей рассмотрены."
+              />
             ) : (
               complaints.map((c) => (
-                <div key={`${c.type}-${c.id}`} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center space-x-2 mb-2">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          c.type === 'message' ? 'bg-primary-500/20 text-primary-300' : 'bg-orange-500/20 text-orange-300'
-                        }`}>
+                <SurfaceCard key={`${c.type}-${c.id}`} className="p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <ToneBadge tone={c.type === 'message' ? 'amber' : 'rose'}>
                           {c.type === 'message' ? 'На сообщение' : 'На пользователя'}
-                        </span>
+                        </ToneBadge>
                         <span className="text-xs text-slate-400">
                           {new Date(c.created_at).toLocaleString('ru-RU')}
                         </span>
                       </div>
-                      <div className="flex flex-wrap items-center space-x-2 text-sm mb-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                         <span className="text-slate-400">От:</span>
-                        <span className="font-medium text-slate-200">{c.reporter_username}</span>
+                        <span className="font-bold text-slate-200">{c.reporter_username}</span>
                         <span className="text-slate-400">→</span>
                         <span className="text-slate-400">На:</span>
-                        <span className="font-medium text-red-400">{c.target_username}</span>
+                        <span className="font-bold text-red-300">{c.target_username}</span>
                       </div>
-                      <div className="flex flex-wrap items-center space-x-2 text-sm mb-1">
+                      <div className="mb-1 flex flex-wrap items-center gap-2 text-sm">
                         <span className="text-slate-400">Причина:</span>
-                        <span className="font-medium text-slate-200">{c.reason}</span>
+                        <span className="font-bold text-slate-200">{c.reason}</span>
                       </div>
                       {c.comment && (
-                        <p className="text-sm text-slate-400 mt-1 italic break-words">"{c.comment}"</p>
+                        <p className="mt-1 break-words text-sm italic text-slate-400">“{c.comment}”</p>
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 sm:ml-4">
                       <button
                         onClick={() => handleResolveComplaint(c.type, c.id)}
                         disabled={actionLoading === c.id}
-                        className="flex items-center space-x-1 px-3 py-1.5 text-sm text-green-400 hover:bg-green-500/10 rounded-lg transition-colors whitespace-nowrap"
+                        className="btn btn-leaf px-4 py-2 text-sm disabled:opacity-50"
                       >
                         <CheckCircle className="h-4 w-4" />
                         <span>Рассмотрена</span>
@@ -380,19 +374,19 @@ export default function AdminPage() {
                       <button
                         onClick={() => handleBanFromComplaint(c.type, c.id)}
                         disabled={actionLoading === c.id}
-                        className="flex items-center space-x-1 px-3 py-1.5 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors whitespace-nowrap"
+                        className="btn bg-red-600 px-4 py-2 text-sm text-white transition-colors hover:bg-red-500 disabled:opacity-50"
                       >
                         <Ban className="h-4 w-4" />
                         <span>Забанить</span>
                       </button>
                     </div>
                   </div>
-                </div>
+                </SurfaceCard>
               ))
             )}
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { authAPI } from '@/lib/api';
-import { UserPlus, AlertCircle, Loader2 } from 'lucide-react';
+import { UserPlus, AlertCircle, Loader2, PawPrint } from 'lucide-react';
 import PasswordStrength from '@/components/PasswordStrength';
+import { PageShell, PageContainer, SurfaceCard, Field, TextInput, ActionButton, AlertBox } from '@/components/ui';
 
 const PRIMITIVES = [
   '123456', 'password', 'qwerty', 'abc123', 'letmein', 'admin',
@@ -87,103 +88,87 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950 py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">Регистрация</h1>
-          <p className="text-slate-400 mt-2">
-            Уже есть аккаунт?{' '}
-            <Link href="/login" className="text-primary-400 hover:text-primary-300">
-              Войдите
-            </Link>
-          </p>
-        </div>
+    <PageShell>
+      <PageContainer>
+        <div className="mx-auto max-w-xl">
+          <div className="mb-7 text-center">
+            <span className="brand-mark mx-auto" aria-hidden="true">
+              <PawPrint className="h-6 w-6" />
+            </span>
+            <p className="eyebrow mt-4 justify-center">Новая семья</p>
+            <h1 className="display-title mt-2 text-3xl sm:text-4xl">Регистрация</h1>
+            <p className="lede mt-2 text-sm sm:text-base">
+              Уже есть аккаунт?{' '}
+              <Link href="/login" className="font-bold text-primary-300 hover:text-primary-200">
+                Войдите
+              </Link>
+            </p>
+          </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-6">
-          {error && (
-            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center space-x-2 text-red-400">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+          <SurfaceCard className="p-6 sm:p-8">
+            {error && (
+              <div className="mb-5">
+                <AlertBox tone="danger">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                  <span>{error}</span>
+                </AlertBox>
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Имя пользователя *
-              </label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-primary-400 focus:shadow-neon-violet transition-all duration-300"
-                placeholder="Минимум 3 символа"
-                required
-                minLength={3}
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <Field label="Имя пользователя *">
+                <TextInput
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="Минимум 3 символа"
+                  required
+                  minLength={3}
+                />
+              </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Email *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-primary-400 focus:shadow-neon-violet transition-all duration-300"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
+              <Field label="Email *">
+                <TextInput
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="your@email.com"
+                  required
+                />
+              </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Пароль *
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-primary-400 focus:shadow-neon-violet transition-all duration-300"
-                placeholder="Минимум 6 символов"
-                required
-              />
-              <PasswordStrength password={formData.password} />
-            </div>
+              <Field label="Пароль *">
+                <TextInput
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Минимум 6 символов"
+                  required
+                />
+                <PasswordStrength password={formData.password} />
+              </Field>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Подтвердите пароль *
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 min-h-11 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-primary-400 focus:shadow-neon-violet transition-all duration-300"
-                placeholder="Повторите пароль"
-                required
-              />
-              {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                <p className="text-red-400 text-xs mt-1">Пароли не совпадают</p>
-              )}
-              {formData.confirmPassword && formData.password === formData.confirmPassword && (
-                <p className="text-green-400 text-xs mt-1">Пароли совпадают</p>
-              )}
-            </div>
+              <Field label="Подтвердите пароль *">
+                <TextInput
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  placeholder="Повторите пароль"
+                  required
+                />
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="mt-1 text-xs text-red-300">Пароли не совпадают</p>
+                )}
+                {formData.confirmPassword && formData.password === formData.confirmPassword && (
+                  <p className="mt-1 text-xs text-green-300">Пароли совпадают</p>
+                )}
+              </Field>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full relative group rounded-lg"
-            >
-              <div className="absolute -inset-1.5 bg-green-400 rounded-xl opacity-0 group-hover:opacity-40 blur-lg transition-all duration-500" />
-              <div className="absolute -inset-1 bg-green-500 rounded-xl opacity-0 group-hover:opacity-30 blur-md transition-all duration-500" />
-              <div className="relative bg-green-600 group-hover:bg-green-500 text-white py-3 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 shadow-neon-emerald">
+              <ActionButton type="submit" variant="leaf" disabled={loading} className="w-full py-3">
                 {loading ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -195,11 +180,11 @@ export default function RegisterPage() {
                     <span>Зарегистрироваться</span>
                   </>
                 )}
-              </div>
-            </button>
-          </form>
+              </ActionButton>
+            </form>
+          </SurfaceCard>
         </div>
-      </div>
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

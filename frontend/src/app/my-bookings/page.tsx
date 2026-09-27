@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { bookingsAPI, Booking, User, mediaUrl } from '@/lib/api';
-import { Calendar, Heart, XCircle, Loader2, AlertCircle, MessageSquare } from 'lucide-react';
+import { Calendar, Heart, XCircle, Loader2, AlertCircle, MessageSquare, PawPrint, MapPin } from 'lucide-react';
+import { PageShell, PageContainer, SurfaceCard, AlertBox, ActionButton, EmptyState } from '@/components/ui';
+import SpeciesIcon from '@/components/SpeciesIcon';
 
 export default function MyBookingsPage() {
   const router = useRouter();
@@ -49,81 +51,86 @@ export default function MyBookingsPage() {
     }
   };
 
-  const getSpeciesEmoji = (species: string) => {
-    const s = species.toLowerCase();
-    if (s.includes('собак') || s.includes('dog')) return '🐕';
-    if (s.includes('кош') || s.includes('кот') || s.includes('cat')) return '🐈';
-    if (s.includes('хомяк') || s.includes('hamster')) return '🐹';
-    if (s.includes('попугай') || s.includes('parrot')) return '🦜';
-    if (s.includes('рыбк') || s.includes('fish')) return '🐟';
-    if (s.includes('черепах') || s.includes('turtle')) return '🐢';
-    if (s.includes('кролик') || s.includes('rabbit')) return '🐇';
-    return '🐾';
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950">
-        <Loader2 className="h-10 w-10 text-primary-400 animate-spin" />
-      </div>
+      <PageShell>
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <SurfaceCard className="flex items-center gap-3 px-7 py-5">
+            <Loader2 className="h-8 w-8 animate-spin text-primary-300" />
+            <span className="font-semibold text-white">Загружаем бронирования…</span>
+          </SurfaceCard>
+        </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-8">Мои бронирования</h1>
+    <PageShell>
+      <PageContainer>
+        <div className="mb-8 max-w-2xl">
+          <span className="eyebrow">Ваши заявки</span>
+          <h1 className="display-title mt-3 text-3xl sm:text-4xl">Мои бронирования</h1>
+          <p className="lede mt-3">Здесь живут питомцы, которых вы уже выбрали. Напишите владельцу и договоритесь о встрече.</p>
+        </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center space-x-2 text-red-400">
-            <AlertCircle className="h-5 w-5 flex-shrink-0" />
-            <span>{error}</span>
+          <div className="mb-5">
+            <AlertBox tone="danger">
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span>{error}</span>
+            </AlertBox>
           </div>
         )}
 
         {bookings.length === 0 ? (
-          <div className="text-center py-20">
-            <Heart className="h-16 w-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-white text-lg mb-4">У вас пока нет бронирований</p>
-            <Link
-              href="/"
-              className="text-primary-400 hover:text-primary-300 font-medium"
-            >
-              Найти питомца
-            </Link>
-          </div>
+          <EmptyState
+            icon={<Heart className="h-8 w-8" aria-hidden="true" />}
+            title="У вас пока нет бронирований"
+            description="Выберите питомца в каталоге — он появится здесь вместе с контактом владельца."
+            action={
+              <Link href="/" className="btn btn-primary px-7 py-3">
+                Найти питомца
+              </Link>
+            }
+          />
         ) : (
           <div className="space-y-4">
             {bookings.map((booking) => (
-              <div
+              <SurfaceCard
                 key={booking.id}
-                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden"
+                className="overflow-hidden"
               >
                 <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-48 h-44 sm:h-auto bg-white/5 flex items-center justify-center text-6xl">
+                  <div className="flex h-48 items-center justify-center bg-gradient-to-br from-primary-500/20 via-[#2a1a0d] to-green-900/20 sm:h-auto sm:w-52">
                     {booking.pet?.image_url ? (
                       <img
                         src={mediaUrl(booking.pet.image_url)}
                         alt={booking.pet.name}
-                        className="w-full h-full object-cover"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span>{booking.pet ? getSpeciesEmoji(booking.pet.species) : '🐾'}</span>
+                      <SpeciesIcon species={booking.pet?.species} className="h-16 w-16 text-primary-300" />
                     )}
                   </div>
 
-                  <div className="flex-1 p-4">
-                    <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <h3 className="text-lg sm:text-xl font-semibold text-white break-words">
+                        <h3 className="display-title break-words text-xl sm:text-2xl">
                           {booking.pet?.name || 'Неизвестный питомец'}
                         </h3>
-                        <p className="text-slate-400">
+                        <p className="mt-1 text-sm text-slate-400">
                           {booking.pet?.species}
                         </p>
+                        {booking.pet?.city && (
+                          <p className="mt-1 inline-flex items-center text-sm text-slate-300">
+                            <MapPin className="mr-1 h-4 w-4 text-green-300" />
+                            {booking.pet.city}
+                          </p>
+                        )}
                         {booking.pet?.age !== null && booking.pet?.age !== undefined && (
-                          <p className="text-sm text-slate-300 mt-1">
-                            <Calendar className="inline h-4 w-4 mr-1 text-slate-400" />
+                          <p className="mt-2 inline-flex items-center text-sm text-slate-300">
+                            <Calendar className="mr-1 h-4 w-4 text-slate-400" />
                             {booking.pet.age} лет
                           </p>
                         )}
@@ -132,7 +139,8 @@ export default function MyBookingsPage() {
                       <button
                         onClick={() => handleCancel(booking.id)}
                         disabled={cancelingId === booking.id}
-                        className="text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
+                        className="flex h-11 w-11 items-center justify-center rounded-full text-red-300 transition-colors hover:bg-red-500/10 hover:text-red-200 disabled:opacity-50"
+                        aria-label="Отменить бронирование"
                       >
                         {cancelingId === booking.id ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
@@ -142,22 +150,24 @@ export default function MyBookingsPage() {
                       </button>
                     </div>
 
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-sm text-slate-400">
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+                      <span className="inline-flex items-center text-sm text-slate-400">
+                        <PawPrint className="mr-1.5 h-4 w-4 text-primary-300" />
                         Забронировано: {new Date(booking.created_at).toLocaleDateString('ru-RU')}
                       </span>
 
-                      <div className="flex items-center space-x-3">
-                        <button
+                      <div className="flex items-center gap-2">
+                        <ActionButton
+                          variant="leaf"
+                          className="px-5 py-2 text-sm"
                           onClick={() => router.push(`/chat?user=${booking.pet?.user_id}`)}
-                          className="text-green-400 hover:text-green-300 text-sm font-medium flex items-center space-x-1 transition-colors"
                         >
                           <MessageSquare className="h-4 w-4" />
                           <span>Написать</span>
-                        </button>
+                        </ActionButton>
                         <Link
                           href={`/pet/${booking.pet_id}`}
-                          className="text-primary-400 hover:text-primary-300 text-sm font-medium transition-colors"
+                          className="btn btn-ghost px-5 py-2 text-sm"
                         >
                           Подробнее
                         </Link>
@@ -165,11 +175,11 @@ export default function MyBookingsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </SurfaceCard>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

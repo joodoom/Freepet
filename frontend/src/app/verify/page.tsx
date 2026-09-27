@@ -7,6 +7,7 @@ import {
   Mail, CheckCircle, AlertCircle, Loader2, RefreshCw,
   Edit3, Clock,
 } from 'lucide-react';
+import { PageShell, PageContainer, SurfaceCard, Field, TextInput, ActionButton, AlertBox } from '@/components/ui';
 
 const CODE_TTL_SECONDS = 5 * 60;
 
@@ -159,159 +160,151 @@ export default function VerifyPage() {
 
   if (alreadyVerified) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950">
-        <div className="text-center">
-          <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(16,185,129,0.4)]" />
-          <h2 className="text-2xl font-bold text-white mb-2">Аккаунт уже верифицирован</h2>
-          <p className="text-slate-400">Перенаправление на главную...</p>
+      <PageShell>
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <SurfaceCard className="max-w-md px-8 py-12 text-center">
+            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-green-300" />
+            <h2 className="display-title text-2xl">Аккаунт уже верифицирован</h2>
+            <p className="lede mt-2 text-sm">Перенаправление на главную...</p>
+          </SurfaceCard>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950 py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-6">
-          <Mail className="h-14 w-14 text-primary-400 mx-auto mb-3 drop-shadow-[0_0_20px_rgba(139,92,246,0.4)]" />
-          <h1 className="text-2xl font-bold text-white">Верификация по email</h1>
-          <p className="text-slate-400 mt-2 text-sm">
-            Код отправлен на <span className="text-slate-200 font-medium">{user?.email}</span>
-          </p>
-        </div>
+    <PageShell>
+      <PageContainer>
+        <div className="mx-auto max-w-xl">
+          <div className="mb-7 text-center">
+            <span className="brand-mark mx-auto" aria-hidden="true">
+              <Mail className="h-6 w-6" />
+            </span>
+            <p className="eyebrow mt-4 justify-center">Подтверждение почты</p>
+            <h1 className="display-title mt-2 text-3xl sm:text-4xl">Верификация по email</h1>
+            <p className="lede mt-2 text-sm">
+              Код отправлен на <span className="font-bold text-white">{user?.email}</span>
+            </p>
+          </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-          {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center space-x-2 text-red-400 text-sm">
-              <AlertCircle className="h-5 w-5 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+          <SurfaceCard className="p-6 sm:p-8">
+            {error && (
+              <div className="mb-4">
+                <AlertBox tone="danger">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                  <span className="text-sm">{error}</span>
+                </AlertBox>
+              </div>
+            )}
 
-          {success && (
-            <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center space-x-2 text-green-400 text-sm">
-              <CheckCircle className="h-5 w-5 flex-shrink-0" />
-              <span>{success}</span>
-            </div>
-          )}
+            {success && (
+              <div className="mb-4">
+                <AlertBox tone="success">
+                  <CheckCircle className="h-5 w-5 flex-shrink-0" />
+                  <span className="text-sm">{success}</span>
+                </AlertBox>
+              </div>
+            )}
 
-          {demoCode && (
-            <div className="mb-4 p-3 bg-green-500/10 border-2 border-dashed border-green-500/30 rounded-lg text-green-400">
-              <p className="text-xs font-bold uppercase tracking-wide text-green-400 mb-1">
-                Режим демо — ваш код
-              </p>
-              <p className="text-2xl font-bold text-center tracking-[0.2em] font-mono my-1">
-                {demoCode}
-              </p>
-              <p className="text-xs text-green-400/70">
-                Почта не настроена, поэтому код показан здесь. Действителен 5 минут.
-              </p>
-            </div>
-          )}
+            {demoCode && (
+              <div className="surface-soft mb-5 border-2 border-dashed border-green-500/40 p-4 text-green-300">
+                <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em]">
+                  Режим демо — ваш код
+                </p>
+                <p className="my-1 text-center font-mono text-2xl font-bold tracking-[0.2em]">
+                  {demoCode}
+                </p>
+                <p className="text-xs opacity-80">
+                  Почта не настроена, поэтому код показан здесь. Действителен 5 минут.
+                </p>
+              </div>
+            )}
 
-          <form onSubmit={handleVerifyEmail} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Код верификации
-              </label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => {
-                  let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                  if (val.length > 4) val = val.slice(0, 4) + '-' + val.slice(4, 8);
-                  setCode(val.slice(0, 9));
-                }}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300 text-center text-2xl tracking-widest font-mono"
-                placeholder="XXXX-XXXX"
-                maxLength={9}
-                autoFocus
-                required
-              />
-              <p className="text-xs text-slate-500 mt-1 text-center">Формат: XXXX-XXXX (буквы и цифры)</p>
-            </div>
+            <form onSubmit={handleVerifyEmail} className="space-y-5">
+              <Field label="Код верификации">
+                <TextInput
+                  type="text"
+                  value={code}
+                  onChange={(e) => {
+                    let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    if (val.length > 4) val = val.slice(0, 4) + '-' + val.slice(4, 8);
+                    setCode(val.slice(0, 9));
+                  }}
+                  className="py-3 text-center font-mono text-2xl tracking-[0.2em]"
+                  placeholder="XXXX-XXXX"
+                  maxLength={9}
+                  autoFocus
+                  required
+                />
+                <p className="mt-1 text-center text-xs text-slate-500">Формат: XXXX-XXXX (буквы и цифры)</p>
+              </Field>
 
-            <button
-              type="submit"
-              disabled={loading || code.length !== 9}
-              className="w-full relative group rounded-lg"
-            >
-              <div className="absolute -inset-1.5 bg-green-400 rounded-xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-              <div className="absolute -inset-1 bg-green-500 rounded-xl opacity-0 group-hover:opacity-40 blur-md transition-all duration-500" />
-              <div className="relative bg-green-600 group-hover:bg-green-500 text-white py-3 rounded-lg transition-colors hover:shadow-neon-emerald disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+              <ActionButton type="submit" variant="leaf" disabled={loading || code.length !== 9} className="w-full py-3">
                 {loading ? (
                   <><Loader2 className="h-5 w-5 animate-spin" /><span>Проверка...</span></>
                 ) : (
                   <span>Верифицировать</span>
                 )}
-              </div>
-            </button>
-          </form>
+              </ActionButton>
+            </form>
 
-          <div className="mt-5 space-y-2">
-            {ttl > 0 && (
-              <div className="flex items-center justify-center space-x-1 text-xs text-slate-500">
-                <Clock className="h-3 w-3" />
-                <span>Код действителен ещё {formatTime(ttl)}</span>
-              </div>
-            )}
-
-            <button
-              onClick={handleResend}
-              disabled={resendLoading || !canResend}
-              className="w-full text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center justify-center space-x-1 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {resendLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-              <span>{canResend ? 'Отправить код повторно' : `Повторить через ${formatTime(ttl)}`}</span>
-            </button>
-
-            {!showEmailEdit ? (
-              <button
-                onClick={() => setShowEmailEdit(true)}
-                className="w-full text-slate-400 hover:text-slate-200 text-sm font-medium flex items-center justify-center space-x-1 py-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                <span>Указать другой email</span>
-              </button>
-            ) : (
-              <form onSubmit={handleChangeEmail} className="space-y-2">
-                <input
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:border-primary-400 focus:shadow-neon-violet focus:outline-none transition-all duration-300 text-sm"
-                  placeholder="Новый email"
-                  required
-                />
-                <div className="flex space-x-2">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 relative group rounded-lg"
-                  >
-                    <div className="absolute -inset-1.5 bg-primary-400 rounded-xl opacity-0 group-hover:opacity-50 blur-lg transition-all duration-500" />
-                    <div className="absolute -inset-1 bg-primary-500 rounded-xl opacity-0 group-hover:opacity-40 blur-md transition-all duration-500" />
-                    <div className="relative bg-primary-600 group-hover:bg-primary-500 text-white py-2 rounded-lg transition-colors hover:shadow-neon-violet disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                      {loading ? 'Отправка...' : 'Отправить код'}
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowEmailEdit(false); setNewEmail(''); }}
-                    className="px-4 py-2 border border-white/10 rounded-lg text-slate-400 hover:bg-white/5 hover:text-white text-sm transition-colors"
-                  >
-                    Отмена
-                  </button>
+            <div className="mt-5 space-y-2">
+              {ttl > 0 && (
+                <div className="flex items-center justify-center space-x-1 text-xs text-slate-500">
+                  <Clock className="h-3 w-3" />
+                  <span>Код действителен ещё {formatTime(ttl)}</span>
                 </div>
-              </form>
-            )}
-          </div>
+              )}
+
+              <button
+                onClick={handleResend}
+                disabled={resendLoading || !canResend}
+                className="flex w-full items-center justify-center space-x-1 py-2 text-sm font-bold text-primary-300 transition-colors hover:text-primary-200 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {resendLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                <span>{canResend ? 'Отправить код повторно' : `Повторить через ${formatTime(ttl)}`}</span>
+              </button>
+
+              {!showEmailEdit ? (
+                <button
+                  onClick={() => setShowEmailEdit(true)}
+                  className="flex w-full items-center justify-center space-x-1 py-2 text-sm font-semibold text-slate-400 transition-colors hover:text-white"
+                >
+                  <Edit3 className="h-4 w-4" />
+                  <span>Указать другой email</span>
+                </button>
+              ) : (
+                <form onSubmit={handleChangeEmail} className="space-y-2">
+                  <TextInput
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    className="text-sm"
+                    placeholder="Новый email"
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <ActionButton type="submit" variant="primary" disabled={loading} className="flex-1 py-2 text-sm">
+                      {loading ? 'Отправка...' : 'Отправить код'}
+                    </ActionButton>
+                    <button
+                      type="button"
+                      onClick={() => { setShowEmailEdit(false); setNewEmail(''); }}
+                      className="btn btn-ghost px-4 py-2 text-sm"
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </SurfaceCard>
         </div>
-      </div>
-    </div>
+      </PageContainer>
+    </PageShell>
   );
 }

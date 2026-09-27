@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import { API_BASE } from '@/lib/api';
+import { PageShell, SurfaceCard } from '@/components/ui';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
@@ -32,12 +32,14 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-950 via-gray-900 to-slate-950">
-      <div className="text-center">
-        <Loader2 className="h-12 w-12 text-primary-400 mx-auto mb-4 animate-spin drop-shadow-[0_0_20px_rgba(139,92,246,0.4)]" />
-        <h2 className="text-xl font-bold text-white mb-2">Вход через Mail.ru...</h2>
-        <p className="text-slate-400">Пожалуйста, подождите</p>
+    <PageShell>
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <SurfaceCard className="max-w-md px-8 py-12 text-center">
+          <span className="mx-auto mb-4 block h-12 w-12 animate-spin rounded-full border-[3px] border-primary-300 border-t-transparent" aria-hidden="true" />
+          <h2 className="display-title text-xl">Вход через Mail.ru...</h2>
+          <p className="lede mt-2 text-sm">Пожалуйста, подождите</p>
+        </SurfaceCard>
       </div>
-    </div>
+    </PageShell>
   );
 }

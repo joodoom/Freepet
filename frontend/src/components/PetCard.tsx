@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { Pet, mediaUrl } from '@/lib/api';
 import { Calendar, Heart, MapPin, Shield, AlertTriangle } from 'lucide-react';
+import SpeciesIcon from '@/components/SpeciesIcon';
+import { ToneBadge } from '@/components/ui';
 
 interface PetCardProps {
   pet: Pet;
@@ -18,122 +20,101 @@ export default function PetCard({ pet }: PetCardProps) {
   const getStatusBadge = () => {
     switch (pet.status) {
       case 'available':
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30 backdrop-blur-sm">
-            Доступен
-          </span>
-        );
+        return <ToneBadge tone="leaf">Доступен</ToneBadge>;
       case 'booked':
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30 backdrop-blur-sm">
-            Забронирован
-          </span>
-        );
+        return <ToneBadge tone="amber">Забронирован</ToneBadge>;
       case 'transferred':
-        return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-500/20 text-primary-300 border border-primary-500/30 backdrop-blur-sm">
-            Передан
-          </span>
-        );
+        return <ToneBadge tone="neutral">Передан</ToneBadge>;
       default:
         return null;
     }
-  };
-
-  const getSpeciesEmoji = () => {
-    const species = pet.species.toLowerCase();
-    if (species.includes('собак') || species.includes('dog')) return '🐕';
-    if (species.includes('кош') || species.includes('кот') || species.includes('cat')) return '🐈';
-    if (species.includes('хомяк') || species.includes('hamster')) return '🐹';
-    if (species.includes('попугай') || species.includes('parrot')) return '🦜';
-    if (species.includes('рыбк') || species.includes('fish')) return '🐟';
-    if (species.includes('черепах') || species.includes('turtle')) return '🐢';
-    if (species.includes('кролик') || species.includes('rabbit')) return '🐇';
-    return '🐾';
   };
 
   const ageLabel = (age: number) =>
     age === 1 ? 'год' : age < 5 ? 'года' : 'лет';
 
   return (
-    <Link href={`/pet/${pet.id}`} className="block h-full focus:outline-none">
-      <div className="group glass hover:border-primary-500/30 hover:shadow-neon-violet transition-all duration-300 transform hover:-translate-y-1 cursor-pointer h-full flex flex-col overflow-hidden">
-        <div className="relative h-44 sm:h-48 overflow-hidden bg-gradient-to-br from-primary-500/10 via-green-500/5 to-transparent">
+    <Link href={`/pet/${pet.id}`} className="block h-full focus:outline-none" aria-label={`Анкета питомца ${pet.name}`}>
+      <article className="group surface-card flex h-full cursor-pointer flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:border-primary-400/50 hover:shadow-neon-violet-lg">
+        <div className="relative h-48 overflow-hidden sm:h-52">
           {pet.image_url ? (
             <img
               src={mediaUrl(pet.image_url)}
               alt={pet.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-6xl transition-transform duration-500 group-hover:scale-110" aria-hidden="true">
-              {getSpeciesEmoji()}
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary-500/25 via-primary-900/30 to-green-900/25 transition-transform duration-500 group-hover:scale-110" aria-hidden="true">
+              <SpeciesIcon species={pet.species} className="h-16 w-16 text-primary-300" />
             </div>
           )}
-          <span className="absolute top-2.5 left-2.5 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-white bg-black/40 backdrop-blur-sm border border-white/10">
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent" aria-hidden="true" />
+          <span className="badge badge-neutral absolute left-3 top-3 backdrop-blur-sm">
             {pet.species}
           </span>
-          <div className="absolute top-2.5 right-2.5">{getStatusBadge()}</div>
+          <div className="absolute right-3 top-3">{getStatusBadge()}</div>
         </div>
 
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="flex flex-1 flex-col p-5">
           {isUnknown && (
-            <div className="mb-2.5 flex items-center space-x-2 text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1.5">
+            <div className="alert alert-warning mb-3 px-3 py-2 text-xs">
               <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs font-medium">Неизвестная порода</span>
+              <span className="font-semibold">Порода уточняется у владельца</span>
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-1.5">
-            <h3 className="text-lg font-bold text-white">{pet.name}</h3>
-            <Heart className="h-5 w-5 text-primary-400 group-hover:scale-110 group-hover:text-pink-400 transition-transform" aria-hidden="true" />
+          <div className="mb-1.5 flex items-start justify-between gap-3">
+            <h3 className="display-title text-xl leading-tight">{pet.name}</h3>
+            <Heart className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary-300 transition-transform group-hover:scale-110 group-hover:text-primary-200" aria-hidden="true" />
           </div>
 
-          {pet.city && (
-            <div className="flex items-center text-sm text-slate-400 mb-1.5">
-              <MapPin className="h-4 w-4 mr-1.5 text-green-400 flex-shrink-0" />
-              <span>{pet.city}</span>
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mb-2 text-sm text-slate-400">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-400">
+            {pet.city && (
+              <span className="inline-flex items-center">
+                <MapPin className="mr-1.5 h-4 w-4 flex-shrink-0 text-green-300" />
+                {pet.city}
+              </span>
+            )}
             {pet.breed && (
-              <p className="truncate">
+              <span className="truncate">
                 <span className="text-slate-500">Порода: </span>{pet.breed}
-              </p>
+              </span>
             )}
             {!isUnknown && pet.age !== null && (
-              <p className="flex items-center">
-                <Calendar className="h-4 w-4 mr-1 text-slate-500 flex-shrink-0" />
+              <span className="inline-flex items-center">
+                <Calendar className="mr-1 h-4 w-4 flex-shrink-0 text-slate-500" />
                 <span>{pet.age} {ageLabel(pet.age)}</span>
-              </p>
+              </span>
             )}
           </div>
 
           {pet.character && (
-            <p className="text-sm text-slate-400 mb-2">
+            <p className="mt-2 text-sm text-slate-400">
               <span className="text-slate-500">Характер: </span>{pet.character}
             </p>
           )}
 
-          <p className="text-slate-300 text-sm leading-relaxed line-clamp-2 mb-3 flex-1">
+          <p className="mb-3 mt-2 flex-1 text-sm leading-relaxed text-slate-300 line-clamp-2">
             {pet.description}
           </p>
 
           {pet.vaccination_info && (
-            <div className="flex items-center text-sm text-green-400 mb-2 font-medium">
-              <Shield className="h-4 w-4 mr-1.5 flex-shrink-0" />
+            <div className="mb-3 inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-green-300">
+              <Shield className="h-4 w-4 flex-shrink-0" />
               <span>Привит</span>
             </div>
           )}
 
           {pet.owner && (
-            <div className="flex items-center text-xs text-slate-500 mt-auto pt-2.5 border-t border-white/10">
-              <span className="truncate">Добавил: {pet.owner.username}</span>
+            <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/10 pt-3 text-xs text-slate-500">
+              <span className="truncate">Владелец: {pet.owner.username}</span>
+              <span className="font-bold uppercase tracking-[0.14em] text-primary-300 transition-colors group-hover:text-primary-200">
+                Анкета →
+              </span>
             </div>
           )}
         </div>
-      </div>
+      </article>
     </Link>
   );
 }

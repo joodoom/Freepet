@@ -45,7 +45,7 @@ export default function PasswordStrength({ password }: PasswordStrengthProps) {
   ];
 
   return (
-    <div className="mt-2">
+    <div className="surface-soft mt-3 p-3">
       <div className="flex items-center space-x-2 mb-2">
         <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
           <div
@@ -53,9 +53,9 @@ export default function PasswordStrength({ password }: PasswordStrengthProps) {
             style={{ width: `${percent}%` }}
           />
         </div>
-        <span className={`text-sm font-medium ${textColor}`}>{label}</span>
+        <span className={`text-sm font-bold ${textColor}`}>{label}</span>
       </div>
-      <div className="grid grid-cols-1 gap-1">
+      <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
         {requirements.map((req, i) => (
           <div key={i} className="flex items-center space-x-2 text-xs">
             <span className={req.met ? 'text-green-400' : 'text-slate-500'}>

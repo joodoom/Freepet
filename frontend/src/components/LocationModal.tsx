@@ -4,11 +4,12 @@ import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { X, MapPin, RefreshCw, Check } from 'lucide-react';
 import { POPULAR_CITIES } from '@/lib/cities';
+import { ActionButton } from '@/components/ui';
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-64 bg-white/5 border border-white/10 rounded-xl">
+    <div className="surface-soft flex h-64 items-center justify-center">
       <span className="text-sm text-slate-500">Загрузка карты...</span>
     </div>
   ),
@@ -75,17 +76,21 @@ export default function LocationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl p-6 w-full max-w-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white flex items-center">
-            <MapPin className="h-5 w-5 mr-2 text-primary-400" />
-            Ваш город
-          </h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="modal-panel w-full max-w-lg p-6 sm:p-7">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="eyebrow">Локация</p>
+            <h2 className="display-title mt-1 flex items-center text-2xl">
+              <MapPin className="mr-2 h-5 w-5 text-primary-300" />
+              Ваш город
+            </h2>
+          </div>
           <button
             type="button"
             onClick={handleClose}
-            className="h-11 w-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+            aria-label="Закрыть выбор города"
           >
             <X className="h-5 w-5" />
           </button>
@@ -93,17 +98,17 @@ export default function LocationModal({
 
         {mode === 'pick' && (
           <>
-            <p className="text-sm text-slate-400 mb-4">
+            <p className="lede mt-3 text-sm">
               Выберите свой город из списка или определите местоположение автоматически.
             </p>
 
-            <div className="flex flex-wrap gap-2 mb-5">
+            <div className="mb-5 mt-4 flex flex-wrap gap-2">
               {POPULAR_CITIES.map((city) => (
                 <button
                   key={city}
                   type="button"
                   onClick={() => handlePickCity(city)}
-                  className="px-4 py-2.5 min-h-11 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:border-primary-400/50 hover:bg-primary-500/10 transition-colors"
+                  className="btn btn-ghost min-h-11 px-4 py-2.5 text-sm"
                 >
                   {city}
                 </button>
@@ -111,14 +116,10 @@ export default function LocationModal({
             </div>
 
             <div className="border-t border-white/10 pt-4">
-              <button
-                type="button"
-                onClick={openMap}
-                className="w-full flex items-center justify-center px-4 py-3 rounded-lg bg-primary-600 text-white hover:bg-primary-500 hover:shadow-neon-violet transition-all"
-              >
-                <RefreshCw className="h-5 w-5 mr-2" />
+              <ActionButton variant="primary" className="w-full py-3" onClick={openMap}>
+                <RefreshCw className="h-5 w-5" />
                 Определить местоположение
-              </button>
+              </ActionButton>
             </div>
           </>
         )}
@@ -126,47 +127,37 @@ export default function LocationModal({
         {mode === 'map' && (
           <>
             {detectedCity ? (
-              <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                <p className="text-green-400 text-sm flex items-center">
-                  <Check className="h-4 w-4 mr-2" />
-                  Определён город: <span className="font-semibold ml-1">{detectedCity}</span>
+              <div className="alert alert-success mb-4 mt-4">
+                <Check className="h-4 w-4 flex-shrink-0" />
+                <p className="text-sm">
+                  Определён город: <span className="font-bold">{detectedCity}</span>
                 </p>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={handleConfirmDetected}
-                    className="flex-1 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500 transition-colors text-sm shadow-neon-emerald"
-                  >
-                    Подтвердить
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-colors text-sm"
-                  >
-                    Указать вручную
-                  </button>
-                </div>
               </div>
             ) : (
-              <p className="text-sm text-slate-400 mb-4">
+              <p className="lede mb-4 mt-4 text-sm">
                 Кликните на карту в нужном месте (метку можно перетащить), затем нажмите «Подтвердить».
               </p>
             )}
 
-            <MapPicker
-              autoDetect
-              onAutoSelect={handleAutoDetect}
-              onManualSelect={handleAutoDetect}
-            />
-            <div className="mt-4 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setMode('pick')}
-                className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-colors text-sm"
-              >
+            <div className="surface-soft overflow-hidden p-2">
+              <MapPicker
+                autoDetect
+                onAutoSelect={handleAutoDetect}
+                onManualSelect={handleAutoDetect}
+              />
+            </div>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
+              {detectedCity && (
+                <ActionButton variant="leaf" onClick={handleConfirmDetected}>
+                  Подтвердить
+                </ActionButton>
+              )}
+              <ActionButton variant="ghost" onClick={handleClose}>
+                Указать вручную
+              </ActionButton>
+              <ActionButton variant="ghost" onClick={() => setMode('pick')}>
                 Выбрать из списка
-              </button>
+              </ActionButton>
             </div>
           </>
         )}
